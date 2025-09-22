@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Посты</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/moderator.css') }}">
+</head>
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Информационно-справочная система</h1>
+        <nav>
+            <a href="{{ url_for('go_main') }}">Главная</a>
+            <a href="{{ url_for('user.main') }}">Новостная лента</a>
+            <a href="{{ url_for('logout') }}">Выйти</a>
+        </nav>
+    </header>
+
+    <div class="all-content">
+    <div class="container">
+        <h1>Пост №{{ post.id }}</h1>
+        <h2>{{ post.title }}</h2>
+        <div class="post">
+            <p>{{ post.description | safe }}</p>
+
+
+            {% if post_files %}
+                <div class="post-files">
+                    <ul id="file-list">
+                        {% for post_file in post_files %}
+                            {% set file = files | selectattr('id', 'equalto', post_file.file_id) | first %}
+                            {% if file %}
+                                <li>
+                                    {% if file.filename.endswith(('png', 'jpg', 'jpeg', 'gif')) %}
+                                        <img src="{{ url_for('download_file', filename=file.filename) }}"
+                                             alt="{{ file.filename }}"
+                                             class="file-preview">
+                                    {% else %}
+                                        <a class="file-download">{{ file.filename }} </a>
+                                    <a href="{{ url_for('download_file', filename=file.filename) }}"
+                                           class="file-download button"
+                                           download>Скачать файл</a>
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+             <br>
+
+                <small>Создано: {{ post.created_at.strftime('%Y-%m-%d') }}</small>
+        </div>
+    </div>
+    </div>
+
+    <footer>
+    <p>Предприятие | 2025</p>
+    </footer>
+    <script src="{{ url_for('.static', filename='js/script.js') }}"></script>
+</div>
+</body>
+</html>

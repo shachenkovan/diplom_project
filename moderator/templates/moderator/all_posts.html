@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Посты</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/moderator.css') }}">
+</head>
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Информационно-справочная система</h1>
+        <nav>
+            <a href="{{ url_for('go_main') }}">Главная</a>
+            <a href="{{ url_for('user.main') }}">Новостная лента</a>
+            <a href="{{ url_for('logout') }}">Выйти</a>
+        </nav>
+    </header>
+
+    <div class="all-content">
+
+    <div class="container">
+
+            <h1>Посты</h1>
+
+        {% for cat, msg in get_flashed_messages(True) %}
+            <div class="flash {{cat}}">{{msg}}</div>
+        {% endfor %}
+
+        <form action="{{ url_for('.all_posts') }}" class="search-form" method="GET">
+                <input type="text" name="search" placeholder="Введите запрос">
+                <button type="submit" class="btn" id="search">Найти 🔍</button>
+            </form>
+
+            <div id="posts">
+    {% for post in posts %}
+        <div class="post" id="post-{{ post.id }}">
+                <h3>{{ post.title }}</h3>
+                <p><a href="{{ url_for('.post', post_id=post.id) }}">{{ post.description[:100] }}{% if post.description|length > 100 %}...{% endif %}</a></p>
+            {% if current_user.role_id != 2 %}
+                <div class="links" id="buttons">
+                    {% if post.published == 0 %}
+                    <button class="btn_all_posts publish-btn" onclick="publishPost('{{ post.id }}')">Выложить</button>
+                    {% endif %}
+                    <a href="{{ url_for('.edit_post', post_id=post.id) }}" class="edit-btn">Редактировать</a>
+                    <a href="{{ url_for('.post', post_id=post.id) }}" class="edit-btn">Перейти к посту</a>
+                    <button class="btn_all_posts del_post" onclick="showModal('{{ post.id }}')">Удалить</button>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+    </div>
+    </div>
+
+    <footer>
+    <p>Предприятие | 2025</p>
+    </footer>
+
+</div>
+
+<!-- Модальное окно -->
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <p>Вы уверены, что хотите удалить этот пост?</p>
+    <div class="modal-buttons">
+      <button class="btn-confirm" id="confirmDeleteBtn">Удалить</button>
+      <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedPostId = null;
+
+// Показать модальное окно
+function showModal(postId) {
+    selectedPostId = postId;
+    document.getElementById("confirmModal").style.display = "flex";
+}
+
+// Скрыть модальное окно
+function closeModal() {
+    document.getElementById("confirmModal").style.display = "none";
+    selectedPostId = null;
+}
+
+// Обработчик удаления
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("confirmDeleteBtn").addEventListener("click", async function () {
+        if (!selectedPostId) return;
+
+        try {
+            const response = await fetch('/moderator/all_posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: selectedPostId, action: 'delete' }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message);
+                const postElement = document.getElementById(`post-${selectedPostId}`);
+                if (postElement) {
+                    postElement.remove();
+                }
+            } else {
+                alert(`Ошибка: ${data.message}`);
+            }
+        } catch (error) {
+            alert(`Ошибка запроса: ${error.message}`);
+        } finally {
+            closeModal();
+        }
+    });
+});
+
+    function publishPost(postId) {
+    fetch('/moderator/all_posts', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: postId, action: 'publish' }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            // Обновим страницу или удалим кнопку "Выложить"
+            const postElem = document.getElementById(`post-${postId}`);
+            const publishBtn = postElem.querySelector('.publish-btn');
+            if (publishBtn) publishBtn.remove();
+        } else {
+            alert('Ошибка: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Ошибка запроса: ' + error.message);
+    });
+}
+</script>
+
+
+</body>
+</html>
