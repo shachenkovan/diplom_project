@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Лента новостей</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/user.css') }}">
+</head>
+<body>
+<div class="page-wrapper">
+<header>
+        <h1>Информационно-справочная система</h1>
+    <nav>
+        <a href="#" id="openModal">О сайте</a>
+        <a href="#" id="openContactModal">Связаться</a>
+        <a href="{{ url_for('go_main') }}">Главная</a>
+        <a href="{{ url_for('moderator.add_post') }}">Предложить новость</a>
+        <a href="{{ url_for('logout') }}">Выход</a>
+    </nav>
+    </header>
+
+    <!-- Модальное окно "О сайте" -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close-btn">&times;</span>
+            <h2>О сайте</h2>
+            <p>Назначением программы является информирование сотрудников «Предприятия» и ведение внутреннего документооборота</p>
+        </div>
+    </div>
+
+    <!-- Модальное окно "Связаться" -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span id="closeContactModal" class="close-btn">&times;</span>
+            <h2>Связаться с нами</h2>
+            <p>Если у вас есть вопросы, пожалуйста, свяжитесь с нами по следующему адресу:</p>
+            <p>Email: <a href="mailto:email@example.com">nastya.nba888@gmail.com</a></p>
+            <p>Телеграм: <a href="https://t.me/shachenkovan" target="_blank" rel="noopener noreferrer">@shachenkovan</a></p>
+        </div>
+    </div>
+
+<div class="all-content">
+<div class="container">
+    <aside class="left-sidebar">
+        <div class="icon">≡</div>
+        <div class="menu">
+            <h3>Категории</h3>
+            <ul>
+                <li><a href="{{ url_for('.texnika_safety') }}">Политика безопасности</a></li>
+                <li><a href="{{ url_for('.security_policy') }}">Техника безопасности</a></li>
+                <li><a href="{{ url_for('.work_instructions') }}">Рабочие инструкции</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="content userpr">
+        <h1>Мой профиль</h1>
+        <form method="POST" class="profile-form">
+            {% for cat, msg in get_flashed_messages(True) %}
+                <div class="flash {{cat}}">{{msg}}</div>
+            {% endfor %}
+            <label for="fio">ФИО:</label>
+            <input type="text" id="fio" name="fio" value="{{ user.fio }}">
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ user.email }}">
+
+            <label for="password">Пароль (если нужно изменить):</label>
+            <input type="password" id="password" name="password">
+
+            <label for="phone">Телефон:</label>
+            <input type="text" id="phone" name="phone" value="{{ user.phone_number if user.phone_number else '' }}">
+
+            <label for="date-birth">Дата рождения:</label>
+            <input type="date" id="date-birth" name="date-birth" value="{{ user.date_of_birth }}">
+
+            <input type="submit" value="Обновить данные" class="update-usr" id="update-usr">
+        </form>
+    </main>
+</div>
+</div>
+
+<footer>
+    <p>Предприятие | 2025</p>
+</footer>
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

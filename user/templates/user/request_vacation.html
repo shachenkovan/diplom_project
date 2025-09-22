@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Запрос на отпуск</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/user.css') }}">
+</head>
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Информационно-справочная система</h1>
+        <nav>
+            <a href="#" id="openModal">О сайте</a>
+            <a href="#" id="openContactModal">Связаться</a>
+            <a href="{{ url_for('go_main') }}">Главная</a>
+            <a href="{{ url_for('moderator.add_post') }}">Предложить новость</a>
+            <a href="{{ url_for('user.user_profile') }}">Профиль</a>
+            <a href="{{ url_for('logout') }}">Выход</a>
+    </nav>
+    </header>
+
+    <!-- Модальное окно "О сайте" -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal" class="close-btn">&times;</span>
+            <h2>О сайте</h2>
+            <p>Назначением программы является информирование сотрудников «Предприятия» и ведение внутреннего документооборота</p>
+        </div>
+    </div>
+
+    <!-- Модальное окно "Связаться" -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span id="closeContactModal" class="close-btn">&times;</span>
+            <h2>Связаться с нами</h2>
+            <p>Если у вас есть вопросы, пожалуйста, свяжитесь с нами по следующему адресу:</p>
+            <p>Email: <a href="mailto:email@example.com">nastya.nba888@gmail.com</a></p>
+            <p>Телеграм: <a href="https://t.me/shachenkovan" target="_blank" rel="noopener noreferrer">@shachenkovan</a></p>
+        </div>
+    </div>
+
+    <div class="all-content">
+    <div class="container">
+        <main class="content">
+            <h1>Создать заявку на отпуск</h1>
+            {% for cat, msg in get_flashed_messages(True) %}
+                <div class="flash {{ cat }}">{{ msg }}</div>
+            {% endfor %}
+
+            <div class="otpusk-input">
+            <form action="{{ url_for('.request_vacation') }}" method="POST">
+                <label for="startt">Дата начала отпуска:</label>
+                <input type="date" id="startt" name="startt" required><br><br>
+
+                <label for="endd">Дата окончания отпуска:</label>
+                <input type="date" id="endd" name="endd" required><br><br>
+
+                <p>
+                    <input type="submit" value="Отправить заявку" class="create-vac-btn" id="create-vac-btn">
+                </p>
+            </form>
+            </div>
+
+            <h2>Данные об отпусках</h2>
+            <br>
+
+            {% set user_vacations = vacation_days | selectattr("user_id", "equalto", current_user.id) | list %}
+
+            {% if user_vacations %}
+                <ul class="vacation-list">
+                    {% for vacation in user_vacations %}
+                        <li class="vacation-item">
+                            <p>Начало отпуска: {{ vacation.startt.strftime('%Y-%m-%d') }}</p>
+                            <p>Конец отпуска: {{ vacation.endd.strftime('%Y-%m-%d') }}</p>
+
+                            {% if not vacation.published %}
+                                <p class="status not-allowed">Не одобрен</p>
+                            {% elif vacation.startt.date() >= date.today() %}
+                                <p class="status planed">Запланирован</p>
+                            {% elif vacation.startt.date() <= date.today() and vacation.endd.date() >= date.today() %}
+                                <p class="status actual">Текущий</p>
+                            {% elif vacation.startt.date() <= date.today() %}
+                                <p class="status ended">Прошедший</p>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="no-vacation">
+                    <p>У вас нет заявок на отпуск.</p>
+                </div>
+            {% endif %}
+
+        </main>
+    </div>
+    </div>
+
+    <footer>
+    <p>Предприятие | 2025</p>
+    </footer>
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
