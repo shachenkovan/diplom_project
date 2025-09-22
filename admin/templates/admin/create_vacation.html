@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Добавить заявку на отпуск</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/admin.css') }}">
+</head>
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Информационно-справочная система</h1>
+        <nav>
+            <a href="{{ url_for('go_main') }}">Главная</a>
+            <a href="{{ url_for('user.main') }}">Новостная лента</a>
+            <a href="{{ url_for('logout') }}">Выйти</a>
+        </nav>
+    </header>
+
+    <div class="all-content">
+    <div class="container">
+        <main class="content">
+            <h1>Добавить заявку на отпуск</h1>
+            {% for cat, msg in get_flashed_messages(True) %}
+                <div class="flash {{cat}}">{{msg}}</div>
+            {% endfor %}
+
+
+            <form action="{{ url_for('.create_vacation') }}" method="POST">
+
+                <label for="user_id">Сотрудник:</label>
+                <select id="user_id" name="user_id" required>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.id }} - {{ user.fio }} ({{ user.username }})</option>
+                    {% endfor %}
+                </select><br>
+
+                <label for="startt">Дата начала отпуска:</label>
+                <input type="date" id="startt" name="startt"><br><br>
+
+                <label for="endd">Дата окончания отпуска:</label>
+                <input type="date" id="endd" name="endd"><br>
+
+                <p>
+                    <input type="submit" value="Создать заявку" class="create-vac-btn">
+                </p>
+            </form>
+        </main>
+    </div>
+    </div>
+
+    <footer>
+        <p>Предприятие | 2025</p>
+    </footer>
+</div>
+</body>
+</html>
