@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель модератора</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/moderator.css') }}">
+</head>
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Информационно-справочная система</h1>
+        <nav>
+            <a href="{{ url_for('user.main') }}">Новостная лента</a>
+            <a href="{{ url_for('logout') }}">Выйти</a>
+        </nav>
+    </header>
+
+    {% for cat, msg in get_flashed_messages(True) %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+
+    <div class="all-content">
+    <div class="container">
+        <h1>Панель модератора</h1>
+        <div class="upr-post">
+            <h2>Добавление нового поста</h2>
+        <a href="{{ url_for('.add_post') }}" class="btn">Перейти</a>
+        </div>
+
+        <div class="all-post">
+        <h2>Просмотр всех постов</h2>
+        <a href="{{ url_for('.all_posts') }}" class="btn">Перейти</a>
+        </div>
+    </div>
+    </div>
+
+    <footer>
+    <p>Предприятие | 2025</p>
+    </footer>
+</div>
+</body>
+</html>

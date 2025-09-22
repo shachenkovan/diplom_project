@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Добавить пост</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/moderator.css') }}">
+</head>
+
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Информационно-справочная система</h1>
+        <nav>
+            <a href="{{ url_for('go_main') }}">Главная</a>
+            <a href="{{ url_for('user.main') }}">Новостная лента</a>
+            <a href="{{ url_for('logout') }}">Выйти</a>
+        </nav>
+    </header>
+
+    <div class="all-content">
+    <div class="container">
+        <h1>Добавить новый пост</h1>
+
+        {% for cat, msg in get_flashed_messages(True) %}
+            <div class="flash {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+
+        <div class="add-post">
+            <form action="{{ url_for('.add_post') }}" method="POST" class="add-post__form" enctype="multipart/form-data">
+                <label for="title" class="add-post__label">Заголовок:</label>
+                <input type="text" id="title" name="title" placeholder="Введите заголовок" class="add-post__input" required>
+
+                <label for="description" class="add-post__label">Контент:</label>
+                <textarea id="description" name="description" placeholder="Введите содержание поста" rows="5" class="add-post__input add-post__textarea" required></textarea>
+
+                <!-- Поле для загрузки файлов -->
+                <label class="add-post__label">Прикрепить файлы:</label>
+                <div class="file-upload-container">
+                    <label for="file-upload" class="file-upload-label">Выберите файлы</label>
+                    <input type="file" id="file-upload" name="files" multiple class="file-upload-input">
+                </div>
+
+                <!-- Список загруженных файлов -->
+                <ul id="file-list"></ul>
+
+                <button type="submit" class="add-post__submit-btn">Добавить пост</button>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <footer>
+    <p>Предприятие | 2025</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let fileInput = document.getElementById('file-upload');
+            let fileList = document.getElementById('file-list');
+            let storedFiles = [];
+
+            fileInput.addEventListener('change', function(event) {
+                let newFiles = Array.from(event.target.files);
+
+                // Добавляем файлы в массив, но не дублируем
+                newFiles.forEach(file => {
+                    if (!storedFiles.some(f => f.name === file.name)) {
+                        storedFiles.push(file);
+                    }
+                });
+
+                updateFileList();
+                updateFileInput();
+            });
+
+            function updateFileList() {
+                fileList.innerHTML = "";
+                storedFiles.forEach((file, index) => {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = file.name + " ";
+
+                    let removeButton = document.createElement("button");
+                    removeButton.textContent = "Удалить";
+                    removeButton.classList.add("remove-file-btn");
+                    removeButton.onclick = function() {
+                        storedFiles.splice(index, 1);
+                        updateFileList();
+                        updateFileInput();
+                    };
+
+                    listItem.appendChild(removeButton);
+                    fileList.appendChild(listItem);
+                });
+            }
+
+            function updateFileInput() {
+                let dataTransfer = new DataTransfer();
+                storedFiles.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

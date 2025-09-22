@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Редактировать пост</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/moderator.css') }}">
+</head>
+
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Информационно-справочная система</h1>
+        <nav>
+            <a href="{{ url_for('go_main') }}">Главная</a>
+            <a href="{{ url_for('user.main') }}">Новостная лента</a>
+            <a href="{{ url_for('logout') }}">Выйти</a>
+        </nav>
+    </header>
+
+    <div class="all-content">
+    <div class="container">
+
+        <h1>Редактировать пост</h1>
+
+        {% for cat, msg in get_flashed_messages(True) %}
+            <div class="flash {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+
+
+        <div class="add-post">
+            <form action="{{ url_for('.edit_post', post_id=post.id) }}" method="POST" class="add-post__form" enctype="multipart/form-data">
+                <label for="title" class="add-post__label">Заголовок:</label>
+                <input type="text" id="title" name="title" value="{{ post.title }}" class="add-post__input" required>
+
+                <label for="description" class="add-post__label">Контент:</label>
+                <textarea id="description" name="description" rows="5" class="add-post__input add-post__textarea" required>{{ post.description }}</textarea>
+
+                <!-- Вывод уже загруженных файлов -->
+                {% if post_files %}
+                    <label class="add-post__label">Прикрепленные файлы:</label>
+                    <ul class="file-list">
+                    {% for post_file in post_files %}
+                        {% set file = files | selectattr('id', 'equalto', post_file.file_id) | first %}
+                        {% if file %}
+                            <li class="file-item" id="file-{{ file.id }}">
+                                {% if file.filename.endswith(('png', 'jpg', 'jpeg', 'gif')) %}
+                                    <img src="{{ url_for('download_file', filename=file.filename) }}"
+                                         alt="{{ file.filename }}"
+                                         class="file-preview">
+                                {% else %}
+                                    <a href="{{ url_for('download_file', filename=file.filename) }}"
+                                       class="file-download"
+                                       download>{{ file.filename }}</a>
+                                {% endif %}
+
+                                <button type="button" class="remove-file-btn" onclick="removeExistingFile({{ file.id }})">Удалить</button>
+
+                                <!-- Чекбокс для удаления файла -->
+                                <input type="checkbox" name="delete_files" value="{{ file.id }}" id="delete-file-{{ file.id }}" style="display: none;">
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                {% endif %}
+
+                <!-- Поле для загрузки новых файлов -->
+                <label class="add-post__label">Прикрепить новые файлы:</label>
+                <div class="file-upload-container">
+                    <label for="file-upload" class="file-upload-label">Выберите файлы</label>
+                    <input type="file" id="file-upload" name="files" multiple class="file-upload-input">
+                </div>
+
+                <!-- Список новых загружаемых файлов -->
+                <ul id="file-list" class="file-list"></ul>
+
+                <button type="submit" class="add-post__submit-btn">Обновить пост</button>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <footer>
+    <p>Предприятие | 2025</p>
+    </footer>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let fileInput = document.getElementById('file-upload');
+        let fileList = document.getElementById('file-list');
+        let storedFiles = [];
+
+        fileInput.addEventListener('change', function(event) {
+            let newFiles = Array.from(event.target.files);
+
+            newFiles.forEach(file => {
+                if (!storedFiles.some(f => f.name === file.name)) {
+                    storedFiles.push(file);
+                }
+            });
+
+            updateFileList();
+            updateFileInput();
+        });
+
+        function updateFileList() {
+            fileList.innerHTML = "";
+            storedFiles.forEach((file, index) => {
+                let listItem = document.createElement("li");
+                listItem.classList.add("file-item");
+                listItem.textContent = file.name + " ";
+
+                let removeButton = document.createElement("button");
+                removeButton.textContent = "Удалить";
+                removeButton.classList.add("remove-file-btn");
+                removeButton.onclick = function() {
+                    storedFiles.splice(index, 1);
+                    updateFileList();
+                    updateFileInput();
+                };
+
+                listItem.appendChild(removeButton);
+                fileList.appendChild(listItem);
+            });
+        }
+
+        function updateFileInput() {
+            let dataTransfer = new DataTransfer();
+            storedFiles.forEach(file => dataTransfer.items.add(file));
+            fileInput.files = dataTransfer.files;
+        }
+
+        // Функция для удаления уже загруженных файлов
+        window.removeExistingFile = function(fileId) {
+            let checkbox = document.getElementById('delete-file-' + fileId);
+            let fileItem = document.getElementById('file-' + fileId);
+
+            if (checkbox) {
+                checkbox.checked = true; // Отмечаем чекбокс для удаления на сервере
+            }
+
+            if (fileItem) {
+                fileItem.style.display = "none"; // Убираем файл из списка визуально
+            }
+        };
+    });
+</script>
+</div>
+</body>
+</html>
