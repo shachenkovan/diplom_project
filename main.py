@@ -6,7 +6,7 @@ from flask_login import (LoginManager, login_user,
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.base import db
 from database.models.files_model import File
-from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY, UPLOAD_FOLDER
+from config.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY, UPLOAD_FOLDER
 from database.models.users_model import User
 from email_validator import validate_email, EmailNotValidError
 from deep_translator import GoogleTranslator
@@ -195,4 +195,4 @@ if __name__ == '__main__':
             db.create_all()
         finally:
             db.session.remove()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
