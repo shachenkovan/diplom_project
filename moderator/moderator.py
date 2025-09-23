@@ -3,7 +3,7 @@ import uuid
 from flask import (Blueprint, render_template, request,
                    jsonify, flash, redirect, url_for, get_flashed_messages)
 from flask_login import login_required, current_user
-import config
+from config import config
 from database.base import db
 from database.models.files_model import File
 from database.models.instructions_model import Instruction
