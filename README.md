@@ -239,7 +239,7 @@ ___
 
 Администратор:
 
-    Логин: admin@example.com
+    Логин: admin@domain.com
     Пароль: admin12
 
 Модератор:
@@ -256,5 +256,5 @@ ___
 
 Для вопросов по установке и использованию, а также с предложениями по исправлению или улучшению проекта обращайтесь:
 
-    Email: nastya.nba888@example.com
+    Email: nastya.nba888@gmail.com
     Telegram: @shachenkovan
